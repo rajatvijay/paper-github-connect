@@ -1,0 +1,31 @@
+{
+  "name": "paper-github-connect",
+  "version": "1.0.0",
+  "description": "Upload and Track you paper docs on Github repository",
+  "main": "index.js",
+  "bin": {
+    "paper-connect": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rajatvijay/paper-github-connect.git"
+  },
+  "keywords": [
+    "Dropbox",
+    "Paper",
+    "Git",
+    "Github"
+  ],
+  "author": "RAJAT VIJAY",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rajatvijay/paper-github-connect/issues"
+  },
+  "homepage": "https://github.com/rajatvijay/paper-github-connect#readme",
+  "dependencies": {
+    "commander": "^2.15.1"
+  }
+}

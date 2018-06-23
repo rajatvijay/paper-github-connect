@@ -6,6 +6,7 @@ dotenv.load ();
 
 const program = require ('commander');
 const axios = require ('axios');
+const chalk = require ('chalk');
 
 // Set up global variables
 const GITHUB_BASE_URL = 'https://api.github.com',
@@ -217,7 +218,7 @@ program
     // TODO: Check if the env file has all the required vars + the commitMsg
     const commitMessage = 'My Dummy Commit';
     pushDocFromPaperToGithub (docURL, commitMessage).then (file =>
-      console.log (file.name)
+      console.log (chalk.blue (file.name))
     );
   })
   .parse (process.argv);

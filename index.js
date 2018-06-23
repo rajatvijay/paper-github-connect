@@ -178,22 +178,22 @@ const getFileNameFromDocTitle = title =>
  */
 async function pushDocFromPaperToGithub (docURL, commitMsg) {
   const docId = getDocIdFromDocURL (docURL);
-  console.log (docId);
+  // console.log (docId);
 
   const doc = await downloadDoc (docId);
-  console.log (doc);
+  // console.log (doc);
 
   const fileName = getFileNameFromDocTitle (doc.title);
-  console.log (fileName);
+  // console.log (fileName);
 
   const action = await whatActionToPerform (fileName);
-  console.log (action);
+  // console.log (action);
 
   let fileInGithub;
   switch (action.action) {
     case 'create':
       fileInGithub = await createFileAndCommit (fileName, doc.data, commitMsg);
-      console.log (fileInGithub);
+      // console.log (fileInGithub);
       return fileInGithub;
     case 'update':
       fileInGithub = await updateFileInRootFolder (
@@ -202,11 +202,11 @@ async function pushDocFromPaperToGithub (docURL, commitMsg) {
         commitMsg,
         action.sha
       );
-      console.log (fileInGithub);
+      // console.log (fileInGithub);
       return fileInGithub;
     default:
       fileInGithub = await createFileAndCommit (fileName, doc.data, commitMsg);
-      console.log (fileInGithub);
+      // console.log (fileInGithub);
       return fileInGithub;
   }
 }

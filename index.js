@@ -9,7 +9,7 @@ const axios = require ('axios');
 
 // Set up global variables
 const GITHUB_BASE_URL = 'https://api.github.com',
-  ROOT_FOLDER_FOR_PAPER_FILE = '/docs',
+  ROOT_FOLDER_FOR_PAPER_FILE = 'docs',
   DROPBOX_BASE_URL = 'https://api.dropboxapi.com/2/paper/';
 const {GITHUB_USERNAME, GITHUB_PASSWORD, PAPER_API, REPO_NAME} = process.env;
 
@@ -109,16 +109,24 @@ async function downloadDoc (docId) {
  * @returns file [Object]: An Object representing the file just created
  */
 async function createFileAndCommit (fileName, content, commitMsg) {
-  const response = await axios ({
-    method: 'PUT',
-    url: `/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${ROOT_FOLDER_FOR_PAPER_FILE}/${fileName}.html`,
-    baseURL: GITHUB_BASE_URL,
-    data: {
-      content: Buffer.form (content).toString ('base64'),
-      message: commitMsg,
-    },
-  });
-  return response.data;
+  try {
+    const response = await axios ({
+      method: 'PUT',
+      url: `/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${ROOT_FOLDER_FOR_PAPER_FILE}/${fileName}.html`,
+      baseURL: GITHUB_BASE_URL,
+      data: {
+        content: Buffer.from (content).toString ('base64'),
+        message: commitMsg,
+      },
+      auth: {
+        username: GITHUB_USERNAME,
+        password: GITHUB_PASSWORD,
+      },
+    });
+    return response.data;
+  } catch (err) {
+    console.log (err);
+  }
 }
 
 /**
@@ -135,7 +143,7 @@ async function updateFileInRootFolder (fileName, content, commitMsg, sha) {
     url: `/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${ROOT_FOLDER_FOR_PAPER_FILE}/${fileName}.html`,
     baseURL: GITHUB_BASE_URL,
     data: {
-      content: Buffer.form (content).toString ('base64'),
+      content: Buffer.from (content).toString ('base64'),
       message: commitMsg,
       sha,
     },
@@ -160,16 +168,56 @@ const getDocIdFromDocURL = docURL => {
  * @returns fileName [String]: name of the file
  */
 const getFileNameFromDocTitle = title =>
-  title.replace (/ /g, '-').toLoweCase ();
+  title.replace (/ /g, '-').toLowerCase ();
+
+/**
+ * Pushes a paper doc to Github
+ * @param docURL [String]: URL of the doc to be pushed on github
+ * @param commitMsg [String]: Commit message for git
+ * @returns fileObj [Object]: File Object representing file on the Github
+ */
+async function pushDocFromPaperToGithub (docURL, commitMsg) {
+  const docId = getDocIdFromDocURL (docURL);
+  console.log (docId);
+
+  const doc = await downloadDoc (docId);
+  console.log (doc);
+
+  const fileName = getFileNameFromDocTitle (doc.title);
+  console.log (fileName);
+
+  const action = await whatActionToPerform (fileName);
+  console.log (action);
+
+  let fileInGithub;
+  switch (action.action) {
+    case 'create':
+      fileInGithub = await createFileAndCommit (fileName, doc.data, commitMsg);
+      console.log (fileInGithub);
+      return fileInGithub;
+    case 'update':
+      fileInGithub = await updateFileInRootFolder (
+        fileName,
+        doc.data,
+        commitMsg,
+        action.sha
+      );
+      console.log (fileInGithub);
+      return fileInGithub;
+    default:
+      fileInGithub = await createFileAndCommit (fileName, doc.data, commitMsg);
+      console.log (fileInGithub);
+      return fileInGithub;
+  }
+}
 
 program
   .arguments ('<docURL>')
   .action (function (docURL) {
-    const docId = getDocIdFromDocURL (docURL);
-    // downloadDoc (docId).then (d =>
-    // console.log (Buffer.from (d.data).toString ('base64'))
-    // );
-
-    whatActionToPerform ('mySecondFile.html').then (console.log);
+    // TODO: Check if the env file has all the required vars + the commitMsg
+    const commitMessage = 'My Dummy Commit';
+    pushDocFromPaperToGithub (docURL, commitMessage).then (file =>
+      console.log (file.name)
+    );
   })
   .parse (process.argv);

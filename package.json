@@ -26,6 +26,8 @@
   },
   "homepage": "https://github.com/rajatvijay/paper-github-connect#readme",
   "dependencies": {
-    "commander": "^2.15.1"
+    "axios": "^0.18.0",
+    "commander": "^2.15.1",
+    "dotenv": "^6.0.0"
   }
 }
